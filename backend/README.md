@@ -1,0 +1,1 @@
+Run `python seed_data.py` inside the backend container to seed initial data (sqlite).
