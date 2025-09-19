@@ -3,22 +3,27 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     restart: always
     environment:
       - DATABASE_URL=postgresql://loyalty_user:loyalty_pass@db:5432/loyalty_db
     depends_on:
       - db
+    networks:
+      - app-network
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     restart: always
     environment:
       - NEXT_PUBLIC_API_URL=https://your-domain.com
     depends_on:
       - backend
+    networks:
+      - app-network
 
   db:
     image: postgres:14
@@ -29,12 +34,16 @@ services:
       POSTGRES_DB: loyalty_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   redis:
     image: redis:alpine
     restart: always
     volumes:
       - redis_data:/data
+    networks:
+      - app-network
 
   nginx:
     image: nginx:alpine
@@ -49,6 +58,8 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - app-network
 
   certbot:
     image: certbot/certbot
@@ -58,7 +69,13 @@ services:
       - ./nginx/certbot/www:/var/www/certbot
     entrypoint: >
       sh -c "trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done"
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  app-network:
+    driver: bridge
