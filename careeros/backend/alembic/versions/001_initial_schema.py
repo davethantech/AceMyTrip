@@ -13,11 +13,11 @@ depends_on = None
 def upgrade() -> None:
     """Create initial database schema."""
     
-    # Create enums
-    sa.Enum('user', 'premium', 'admin', name='userrole').create(op.get_bind())
-    sa.Enum('draft', 'applied', 'interview', 'offer', 'rejected', 'withdrawn', name='applicationstatus').create(op.get_bind())
-    sa.Enum('full_time', 'part_time', 'contract', 'freelance', 'internship', name='jobtype').create(op.get_bind())
-    sa.Enum('onsite', 'remote', 'hybrid', name='remotetype').create(op.get_bind())
+    # Create enums (with checkfirst=True to avoid DuplicateObject errors)
+    sa.Enum('user', 'premium', 'admin', name='userrole').create(op.get_bind(), checkfirst=True)
+    sa.Enum('draft', 'applied', 'interview', 'offer', 'rejected', 'withdrawn', name='applicationstatus').create(op.get_bind(), checkfirst=True)
+    sa.Enum('full_time', 'part_time', 'contract', 'freelance', 'internship', name='jobtype').create(op.get_bind(), checkfirst=True)
+    sa.Enum('onsite', 'remote', 'hybrid', name='remotetype').create(op.get_bind(), checkfirst=True)
     
     # Users table
     op.create_table('users',
@@ -392,8 +392,8 @@ def downgrade() -> None:
     op.drop_table('companies')
     op.drop_table('users')
     
-    # Drop enums
-    sa.Enum(name='userrole').drop(op.get_bind())
-    sa.Enum(name='applicationstatus').drop(op.get_bind())
-    sa.Enum(name='jobtype').drop(op.get_bind())
-    sa.Enum(name='remotetype').drop(op.get_bind())
+    # Drop enums (with checkfirst=True to avoid errors if they don't exist)
+    sa.Enum(name='userrole').drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name='applicationstatus').drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name='jobtype').drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name='remotetype').drop(op.get_bind(), checkfirst=True)
